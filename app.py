@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import google.generativeai as genai
+from PyPDF2 import PdfReader
 
 app = Flask(__name__)
 CORS(app)
@@ -55,9 +56,8 @@ def audit():
             file.save(file_path)
             zone_b_paths.append(file_path)
 
-        checklist_text = "Sample checklist content"
-        invoice_texts = {"document_1": "Sample invoice content"}
-
+        # For now, return sample results
+        # In production, extract text from PDFs and compare with Gemini
         results = [
             {
                 "field": "Invoice Number",
@@ -65,16 +65,10 @@ def audit():
                 "invoice_value": "INV-2024-001",
                 "status": "match",
                 "note": "Verified"
-            },
-            {
-                "field": "Total Amount",
-                "checklist_value": "10000",
-                "invoice_value": "10000",
-                "status": "match",
-                "note": "Amount matches"
             }
         ]
 
+        # Cleanup
         os.remove(zone_a_path)
         for path in zone_b_paths:
             os.remove(path)
@@ -85,8 +79,8 @@ def audit():
             'summary': {
                 'total_checks': len(results),
                 'matches': len([r for r in results if r['status'] == 'match']),
-                'mismatches': len([r for r in results if r['status'] == 'mismatch']),
-                'warnings': len([r for r in results if r['status'] == 'warning']),
+                'mismatches': 0,
+                'warnings': 0,
             }
         }), 200
 
